@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-// Load environment variables
 dotenv.config();
 
 const authRoutes = require('./routes/authRoutes');
@@ -12,11 +11,11 @@ const workoutRoutes = require('./routes/workoutRoutes');
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
 // Routes
+app.get('/api/ping', (req, res) => res.send('pong'));
 app.use('/api', authRoutes);
 app.use('/api/movements', movementRoutes);
 app.use('/api/workouts', workoutRoutes);
@@ -24,17 +23,33 @@ app.use('/api/workouts', workoutRoutes);
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gymtracker';
 
-// Database Connection
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log('Connected to MongoDB');
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}).catch(err => {
-  console.error('MongoDB connection error:', err);
+// MongoDB connection logic for serverless
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected) return;
+  try {
+    const db = await mongoose.connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    isConnected = db.connections[0].readyState;
+    console.log('Connected to MongoDB');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+  }
+};
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  connectDB().then(() => {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  });
+}
+
+// Ensure DB is connected for every request in serverless
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
 });
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Gym Tracker API');
-});
+module.exports = app;
