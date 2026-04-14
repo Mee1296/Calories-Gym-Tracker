@@ -25,9 +25,12 @@ export default function TrainingPage() {
     startSession();
   }, []);
 
+  let API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  if (API_URL.endsWith('/')) API_URL = API_URL.slice(0, -1);
+
   const fetchMovements = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/movements`, {
+      const res = await axios.get(`${API_URL}/movements`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setMovements(res.data);
@@ -54,7 +57,7 @@ export default function TrainingPage() {
     const movement = movements.find(m => m._id === movementId);
     let prevSession = null;
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/workouts/last/${movementId}`, {
+      const res = await axios.get(`${API_URL}/workouts/last/${movementId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       prevSession = res.data;
@@ -85,7 +88,7 @@ export default function TrainingPage() {
   const saveNewMovement = async () => {
     if (!newMovement.name) return;
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/movements`, newMovement, {
+      await axios.post(`${API_URL}/movements`, newMovement, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setNewMovement({ name: '', category: 'chest', plane: 'frontal plane' });
@@ -106,7 +109,7 @@ export default function TrainingPage() {
     clearInterval(timerRef.current);
     const endTime = new Date();
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/workouts/finish`, {
+      const res = await axios.post(`${API_URL}/workouts/finish`, {
         startTime,
         endTime,
         exercises: session

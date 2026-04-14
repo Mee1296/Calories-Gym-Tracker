@@ -11,9 +11,14 @@ export default function LoginPage() {
 
   const handleAuth = async (e) => {
     e.preventDefault();
-    const endpoint = isLogin ? '/login' : '/register';
+    const endpoint = isLogin ? '/api/login' : '/api/register';
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
+      // Normalize API URL to avoid double-slash issues
+      let apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      if (apiUrl.endsWith('/')) apiUrl = apiUrl.slice(0, -1);
+      
+      const cleanEndpoint = isLogin ? '/login' : '/register';
+      const res = await axios.post(`${apiUrl}${cleanEndpoint}`, {
         username, password, role
       });
       if (isLogin) {
