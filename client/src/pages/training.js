@@ -25,8 +25,11 @@ export default function TrainingPage() {
     startSession();
   }, []);
 
-  let API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-  if (API_URL.endsWith('/')) API_URL = API_URL.slice(0, -1);
+  let envUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  if (!envUrl.startsWith('http')) envUrl = `https://${envUrl}`;
+  if (envUrl.endsWith('/')) envUrl = envUrl.slice(0, -1);
+  if (!envUrl.endsWith('/api')) envUrl = `${envUrl}/api`;
+  const API_URL = envUrl;
 
   const fetchMovements = async () => {
     try {

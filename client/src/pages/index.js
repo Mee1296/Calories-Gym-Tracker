@@ -13,12 +13,19 @@ export default function LoginPage() {
     e.preventDefault();
     const endpoint = isLogin ? '/api/login' : '/api/register';
     try {
-      // Normalize API URL to avoid double-slash issues
-      let apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      if (apiUrl.endsWith('/')) apiUrl = apiUrl.slice(0, -1);
+      // Robust URL normalization
+      let envUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       
-      const cleanEndpoint = isLogin ? '/login' : '/register';
-      const res = await axios.post(`${apiUrl}${cleanEndpoint}`, {
+      // 1. Ensure it has a protocol (default to https for production)
+      if (!envUrl.startsWith('http')) envUrl = `https://${envUrl}`;
+      
+      // 2. Remove trailing slash
+      if (envUrl.endsWith('/')) envUrl = envUrl.slice(0, -1);
+      
+      // 3. Ensure it ends with /api (since your backend prefixes all routes with /api)
+      if (!envUrl.endsWith('/api')) envUrl = `${envUrl}/api`;
+      
+      const res = await axios.post(`${envUrl}/login`, {
         username, password, role
       });
       if (isLogin) {
