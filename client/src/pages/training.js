@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useRouter } from 'next/router';
 import { X, Plus } from 'lucide-react';
 import Timer from '../components/Timer';
@@ -25,17 +25,9 @@ export default function TrainingPage() {
     startSession();
   }, []);
 
-  let envUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-  if (!envUrl.startsWith('http')) envUrl = `https://${envUrl}`;
-  if (envUrl.endsWith('/')) envUrl = envUrl.slice(0, -1);
-  if (!envUrl.endsWith('/api')) envUrl = `${envUrl}/api`;
-  const API_URL = envUrl;
-
   const fetchMovements = async () => {
     try {
-      const res = await axios.get(`${API_URL}/movements`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await api.get('/movements');
       setMovements(res.data);
     } catch (err) { console.error(err); }
   };
@@ -60,9 +52,7 @@ export default function TrainingPage() {
     const movement = movements.find(m => m._id === movementId);
     let prevSession = null;
     try {
-      const res = await axios.get(`${API_URL}/workouts/last/${movementId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await api.get(`/workouts/last/${movementId}`);
       prevSession = res.data;
     } catch (err) { console.error(err); }
 
@@ -71,7 +61,7 @@ export default function TrainingPage() {
       name: movement.name,
       category: movement.category,
       plane: movement.plane,
-      sets: [{ weight: '', reps: '' }], // Start with one set
+      sets: [{ weight: '', reps: '' }],
       prevSets: prevSession ? prevSession.sets : []
     }]);
   };
@@ -91,9 +81,7 @@ export default function TrainingPage() {
   const saveNewMovement = async () => {
     if (!newMovement.name) return;
     try {
-      await axios.post(`${API_URL}/movements`, newMovement, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      await api.post('/movements', newMovement);
       setNewMovement({ name: '', category: 'chest', plane: 'frontal plane' });
       setShowAddModal(false);
       fetchMovements();
@@ -112,12 +100,10 @@ export default function TrainingPage() {
     clearInterval(timerRef.current);
     const endTime = new Date();
     try {
-      const res = await axios.post(`${API_URL}/workouts/finish`, {
+      const res = await api.post('/workouts/finish', {
         startTime,
         endTime,
         exercises: session
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setSummary(res.data);
     } catch (err) { alert(err.response?.data || err.message); }
@@ -153,7 +139,6 @@ export default function TrainingPage() {
         </button>
       )}
 
-      {/* Modal Mockup */}
       {showAddModal && (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div className="card" style={{ background: '#fff', width: '100%', maxWidth: '300px', padding: '24px' }}>

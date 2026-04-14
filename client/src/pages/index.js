@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useRouter } from 'next/router';
 
 export default function LoginPage() {
@@ -11,21 +11,9 @@ export default function LoginPage() {
 
   const handleAuth = async (e) => {
     e.preventDefault();
-    const endpoint = isLogin ? '/api/login' : '/api/register';
+    const endpoint = isLogin ? '/login' : '/register';
     try {
-      // Robust URL normalization
-      let envUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      
-      // 1. Ensure it has a protocol (default to https for production)
-      if (!envUrl.startsWith('http')) envUrl = `https://${envUrl}`;
-      
-      // 2. Remove trailing slash
-      if (envUrl.endsWith('/')) envUrl = envUrl.slice(0, -1);
-      
-      // 3. Ensure it ends with /api (since your backend prefixes all routes with /api)
-      if (!envUrl.endsWith('/api')) envUrl = `${envUrl}/api`;
-      
-      const res = await axios.post(`${envUrl}/login`, {
+      const res = await api.post(endpoint, {
         username, password, role
       });
       if (isLogin) {
@@ -36,13 +24,15 @@ export default function LoginPage() {
         setIsLogin(true);
       }
     } catch (err) {
-      alert('Auth failed: ' + err.response?.data || err.message);
+      alert('Auth failed: ' + (err.response?.data || err.message));
     }
   };
 
   return (
     <div className="container">
-      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>Gym Tracker</h1>
+      <h1 style={{ textAlign: 'center', marginBottom: '8px' }}>Gym Tracker</h1>
+      <p style={{ textAlign: 'center', color: '#8e8e93', marginBottom: '32px' }}>Welcome back to your progress</p>
+      
       <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
@@ -56,7 +46,7 @@ export default function LoginPage() {
       </form>
       <p style={{ textAlign: 'center', marginTop: '20px' }}>
         {isLogin ? "Don't have an account?" : "Already have an account?"}
-        <button className="btn-outline" style={{ border: 'none' }} onClick={() => setIsLogin(!isLogin)}>
+        <button className="btn-outline" style={{ border: 'none', marginLeft: '4px' }} onClick={() => setIsLogin(!isLogin)}>
           {isLogin ? 'Register' : 'Login'}
         </button>
       </p>
