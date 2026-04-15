@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 import { useRouter } from 'next/router';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Search, ChevronDown } from 'lucide-react';
 import Timer from '../components/Timer';
 import ExerciseCard from '../components/ExerciseCard';
 
@@ -14,6 +14,9 @@ export default function TrainingPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newMovement, setNewMovement] = useState({ name: '', category: 'chest', plane: 'frontal plane' });
   const [summary, setSummary] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchList, setShowSearchList] = useState(false);
+  const searchContainerRef = useRef(null);
   const router = useRouter();
   const timerRef = useRef(null);
 
@@ -23,6 +26,15 @@ export default function TrainingPage() {
     setIsAdmin(localStorage.getItem('role') === 'admin');
     fetchMovements();
     startSession();
+
+    // Close dropdown when clicking outside
+    const handleClickOutside = (event) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setShowSearchList(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const fetchMovements = async () => {
@@ -64,6 +76,8 @@ export default function TrainingPage() {
       sets: [{ weight: '', reps: '' }],
       prevSets: prevSession ? prevSession.sets : []
     }]);
+    setSearchQuery('');
+    setShowSearchList(false);
   };
 
   const addSet = (index) => {
@@ -108,6 +122,10 @@ export default function TrainingPage() {
       setSummary(res.data);
     } catch (err) { alert(err.response?.data || err.message); }
   };
+
+  const filteredMovements = movements.filter(m => 
+    m.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (summary) {
     return (
@@ -160,11 +178,84 @@ export default function TrainingPage() {
         </div>
       )}
 
-      <div style={{ marginBottom: '24px' }}>
-        <select onChange={(e) => addExercise(e.target.value)} defaultValue="" style={{ background: '#f2f2f7', border: '1px solid #d1d1d6' }}>
-          <option value="" disabled>+ Add Exercise</option>
-          {movements.map(m => <option key={m._id} value={m._id}>{m.name}</option>)}
-        </select>
+      {/* Unified Searchable Dropdown */}
+      <div ref={searchContainerRef} style={{ marginBottom: '24px', position: 'relative' }}>
+        <div style={{ position: 'relative' }} onClick={() => setShowSearchList(!showSearchList)}>
+          <input 
+            placeholder="+ Add Exercise" 
+            value={searchQuery} 
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setShowSearchList(true);
+            }}
+            onFocus={() => setShowSearchList(true)}
+            style={{ 
+              paddingRight: '40px', 
+              background: '#f2f2f7', 
+              border: '1px solid #d1d1d6', 
+              borderRadius: '12px',
+              cursor: 'text',
+              fontWeight: '600',
+              caretColor: '#007aff'
+            }}
+          />
+          <ChevronDown 
+            size={20} 
+            style={{ 
+              position: 'absolute', 
+              right: '12px', 
+              top: '50%', 
+              transform: 'translateY(-50%)', 
+              color: '#8e8e93',
+              pointerEvents: 'none',
+              transition: 'transform 0.2s ease',
+              transform: `translateY(-50%) ${showSearchList ? 'rotate(180deg)' : ''}`
+            }} 
+          />
+        </div>
+        
+        {showSearchList && (
+          <div className="card" style={{ 
+            position: 'absolute', 
+            top: '55px', 
+            left: 0, 
+            right: 0, 
+            zIndex: 50, 
+            maxHeight: '300px', 
+            overflowY: 'auto',
+            background: '#fff',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+            padding: '4px',
+            border: '1px solid #d1d1d6',
+            borderRadius: '14px'
+          }}>
+            {filteredMovements.length > 0 ? (
+              filteredMovements.map(m => (
+                <div 
+                  key={m._id} 
+                  onClick={() => addExercise(m._id)}
+                  style={{ 
+                    padding: '14px 12px', 
+                    borderBottom: '1px solid #f2f2f7', 
+                    cursor: 'pointer',
+                    transition: 'background 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = '#f2f2f7'}
+                  onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                >
+                  <div style={{ fontWeight: '600', fontSize: '16px', color: '#1c1c1e' }}>{m.name}</div>
+                  <div style={{ fontSize: '11px', color: '#8e8e93', textTransform: 'uppercase', fontWeight: '700', marginTop: '2px' }}>
+                    {m.category} • {m.plane}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ padding: '24px', color: '#8e8e93', textAlign: 'center', fontSize: '14px' }}>
+                No exercises found for "{searchQuery}"
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div style={{ paddingBottom: '100px' }}>

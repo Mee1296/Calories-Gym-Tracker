@@ -31,7 +31,7 @@ export default function LoginPage() {
   return (
     <div className="container">
       <h1 style={{ textAlign: 'center', marginBottom: '8px' }}>Gym Tracker</h1>
-      <p style={{ textAlign: 'center', color: '#8e8e93', marginBottom: '32px' }}>Welcome back to your progress</p>
+      <p style={{ textAlign: 'center', color: '#8e8e93', marginBottom: '32px' }}>still under construction</p>
       
       <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
