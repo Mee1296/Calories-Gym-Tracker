@@ -28,7 +28,7 @@ export default function Dashboard() {
         </div>
 
         <div className="card" style={{ opacity: 0.6 }}>
-          <h3 style={{ marginBottom: '4px' }}>Weight Tracking</h3>
+          <h3 style={{ marginBottom: '4px' }}>Weight Track</h3>
           <p style={{ color: '#8e8e93', fontSize: '15px' }}>Coming soon</p>
         </div>
       </div>

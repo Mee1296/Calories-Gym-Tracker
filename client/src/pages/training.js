@@ -170,7 +170,7 @@ export default function TrainingPage() {
                 {['chest', 'back', 'arm', 'delts', 'legs', 'abs'].map(c => <option key={c} value={c}>{c.toUpperCase()}</option>)}
               </select>
               <select value={newMovement.plane} onChange={e => setNewMovement({ ...newMovement, plane: e.target.value })}>
-                {['frontal plane', 'saggital plane', 'transverse plane'].map(p => <option key={p} value={p}>{p.toUpperCase()}</option>)}
+                {['frontal plane', 'saggital plane', 'transverse plane', '-'].map(p => <option key={p} value={p}>{p.toUpperCase()}</option>)}
               </select>
               <button className="btn-primary" onClick={saveNewMovement}>Save Movement</button>
             </div>
