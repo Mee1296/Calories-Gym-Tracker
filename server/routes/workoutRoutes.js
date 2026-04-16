@@ -4,6 +4,7 @@ const workoutController = require('../controllers/workoutController');
 const { authenticateToken } = require('../middleware/auth');
 
 router.post('/finish', authenticateToken, workoutController.finishWorkout);
+router.get('/', authenticateToken, workoutController.getWorkoutHistory);
 router.get('/last/:movementId', authenticateToken, workoutController.getLastWorkoutByMovement);
 
 module.exports = router;

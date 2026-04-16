@@ -18,6 +18,17 @@ exports.finishWorkout = async (req, res) => {
   }
 };
 
+exports.getWorkoutHistory = async (req, res) => {
+  try {
+    const history = await Workout.find({ userId: req.user.id })
+      .populate('exercises.movementId')
+      .sort({ startTime: -1 });
+    res.json(history);
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+};
+
 exports.getLastWorkoutByMovement = async (req, res) => {
   try {
     const lastWorkout = await Workout.findOne({
