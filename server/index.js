@@ -8,6 +8,7 @@ dotenv.config();
 const authRoutes = require('./routes/authRoutes');
 const movementRoutes = require('./routes/movementRoutes');
 const workoutRoutes = require('./routes/workoutRoutes');
+const weightRoutes = require('./routes/weightRoutes');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.get('/api/ping', (req, res) => res.send('pong'));
 app.use('/api', authRoutes);
 app.use('/api/movements', movementRoutes);
 app.use('/api/workouts', workoutRoutes);
+app.use('/api/weights', weightRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gymtracker';

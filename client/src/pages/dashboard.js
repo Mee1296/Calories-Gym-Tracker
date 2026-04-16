@@ -27,9 +27,9 @@ export default function Dashboard() {
           <p style={{ color: '#8e8e93', fontSize: '15px' }}>Coming soon</p>
         </div>
 
-        <div className="card" style={{ opacity: 0.6 }}>
+        <div className="card" onClick={() => router.push('/weight')} style={{ cursor: 'pointer', background: 'linear-gradient(135deg, #34c759 0%, #28a745 100%)', color: '#fff' }}>
           <h3 style={{ marginBottom: '4px' }}>Weight Track</h3>
-          <p style={{ color: '#8e8e93', fontSize: '15px' }}>Coming soon</p>
+          <p style={{ opacity: 0.9, fontSize: '15px' }}>Track your body weight progress</p>
         </div>
       </div>
 

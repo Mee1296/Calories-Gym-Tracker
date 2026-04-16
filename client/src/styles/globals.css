@@ -114,6 +114,16 @@ button:active {
 .btn-danger { background: #ff3b30; color: #fff; }
 .btn-outline { background: #f2f2f7; color: #007aff; border: none; }
 
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 .timer-text {
   font-variant-numeric: tabular-nums;
   font-weight: 700;
