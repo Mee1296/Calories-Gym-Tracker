@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mongodb:
     image: mongo:latest
@@ -12,9 +10,10 @@ services:
     build: ./server
     ports:
       - "5000:5000"
+    env_file:
+      - ./server/.env
     environment:
       - MONGO_URI=mongodb://mongodb:27017/gymtracker
-      - JWT_SECRET=supersecretkey
     depends_on:
       - mongodb
 

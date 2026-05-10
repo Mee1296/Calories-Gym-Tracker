@@ -12,27 +12,31 @@ export default function Dashboard() {
 
   return (
     <div className="container">
-      <h1 style={{ marginBottom: '8px' }}>Gym Tracker</h1>
-      <p style={{ color: '#8e8e93', marginBottom: '32px', fontSize: '17px' }}>Track your progress effortlessly</p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Gym Tracker</h1>
+          <p className="page-subtitle">Track your progress effortlessly</p>
+        </div>
+      </div>
       
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <div className="card" onClick={() => router.push('/lift-history')} style={{ cursor: 'pointer', background: 'linear-gradient(135deg, #007aff 0%, #0056b3 100%)', color: '#fff' }}>
-          <h3 style={{ marginBottom: '4px' }}>Lift Track</h3>
-          <p style={{ opacity: 0.9, fontSize: '15px' }}>Log sets, reps, and PRs</p>
+      <div className="dashboard-grid">
+        <div className="dashboard-card" onClick={() => router.push('/lift-history')} style={{ cursor: 'pointer', background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' }}>
+          <h3>Lift Track</h3>
+          <p>Log sets, reps, and PRs</p>
         </div>
 
-        <div className="card" style={{ opacity: 0.6 }}>
-          <h3 style={{ marginBottom: '4px' }}>Calories Track</h3>
-          <p style={{ color: '#8e8e93', fontSize: '15px' }}>Coming soon</p>
+        <div className="dashboard-card" onClick={() => router.push('/calories')} style={{ cursor: 'pointer', background: 'linear-gradient(135deg, #7c2d12 0%, #31111b 100%)' }}>
+          <h3>Calories Track</h3>
+          <p>Log meals and track macros</p>
         </div>
 
-        <div className="card" onClick={() => router.push('/weight')} style={{ cursor: 'pointer', background: 'linear-gradient(135deg, #34c759 0%, #28a745 100%)', color: '#fff' }}>
-          <h3 style={{ marginBottom: '4px' }}>Weight Track</h3>
-          <p style={{ opacity: 0.9, fontSize: '15px' }}>Track your body weight progress</p>
+        <div className="dashboard-card" onClick={() => router.push('/weight')} style={{ cursor: 'pointer', background: 'linear-gradient(135deg, #0f766e 0%, #064e3b 100%)' }}>
+          <h3>Weight Track</h3>
+          <p>Track your body weight progress</p>
         </div>
       </div>
 
-      <button className="btn-outline" style={{ width: '100%', marginTop: '40px', color: '#ff3b30' }} onClick={() => {
+      <button className="btn-outline btn-full" style={{ marginTop: 'auto' }} onClick={() => {
         localStorage.clear();
         router.push('/');
       }}>Logout</button>

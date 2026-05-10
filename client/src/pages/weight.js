@@ -36,29 +36,26 @@ export default function WeightPage() {
 
   return (
     <div className="container">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-        <ChevronLeft onClick={() => router.push('/dashboard')} style={{ cursor: 'pointer' }} />
-        <h1 style={{ margin: 0 }}>Weight Tracking</h1>
+      <div className="page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <ChevronLeft onClick={() => router.push('/dashboard')} style={{ cursor: 'pointer' }} />
+          <h1 className="page-title">Weight Tracking</h1>
+        </div>
       </div>
 
-      <div className="card" style={{ padding: '20px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '16px' }}>Log Today's Weight</h3>
-        <form onSubmit={handleLogWeight} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div className="card section-card">
+        <h3 className="section-title" style={{ marginBottom: '12px' }}>Log Today's Weight</h3>
+        <form onSubmit={handleLogWeight} className="form-row-full">
           <input 
             type="number" 
             step="0.1" 
             placeholder="Weight in kg" 
             value={weight} 
             onChange={(e) => setWeight(e.target.value)}
-            style={{ 
-              flex: 1, 
-              textAlign: 'center', 
-              fontSize: '18px', 
-              fontWeight: '600',
-              padding: '12px'
-            }}
+            className="input-inline"
+            style={{ textAlign: 'center', fontSize: '18px', fontWeight: '600' }}
           />
-          <button className="btn-primary" type="submit" style={{ width: '100%', fontSize: '14px', letterSpacing: '0.5px', background: '#5ac8fa' }}>
+          <button className="btn-primary btn-full" type="submit">
             ENTER
           </button>
         </form>
@@ -98,12 +95,12 @@ export default function WeightPage() {
       )}
 
       <div style={{ marginTop: '24px' }}>
-        <h3>History</h3>
+        <h3 className="section-title">History</h3>
         <div style={{ marginTop: '16px' }}>
           {[...history].reverse().slice(0, 5).map((item, i) => (
             <div key={i} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <span style={{ fontWeight: '600' }}>{item.displayDate}</span>
-              <span style={{ fontWeight: '800', color: '#007aff' }}>{item.weight} kg</span>
+              <span style={{ fontWeight: '800', color: '#3b82f6' }}>{item.weight} kg</span>
             </div>
           ))}
         </div>

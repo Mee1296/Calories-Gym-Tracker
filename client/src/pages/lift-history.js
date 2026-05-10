@@ -26,30 +26,32 @@ export default function LiftHistoryPage() {
 
   return (
     <div className="container">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-        <ChevronLeft onClick={() => router.push('/dashboard')} style={{ cursor: 'pointer' }} />
-        <h1 style={{ margin: 0 }}>Lift History</h1>
+      <div className="page-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <ChevronLeft onClick={() => router.push('/dashboard')} style={{ cursor: 'pointer' }} />
+          <h1 className="page-title">Lift History</h1>
+        </div>
       </div>
 
       <button 
-        className="btn-primary" 
-        style={{ width: '100%', marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px' }}
+        className="btn-primary btn-full" 
+        style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
         onClick={() => router.push('/training')}
       >
         <Plus size={20} /> START TRAINING
       </button>
 
       <div>
-        <h3 style={{ marginBottom: '16px' }}>Previous Workouts</h3>
+        <h3 className="section-title">Previous Workouts</h3>
         {history.length > 0 ? (
           history.map((workout, index) => (
-            <div key={workout._id} className="card" style={{ marginBottom: '16px', borderLeft: '4px solid #007aff' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#8e8e93', fontSize: '13px' }}>
+            <div key={workout._id} className="card history-panel" style={{ marginBottom: '16px' }}>
+              <div className="history-header">
+                <div className="history-subtext" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Calendar size={14} />
                   {new Date(workout.startTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#8e8e93', fontSize: '13px' }}>
+                <div className="history-subtext" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Clock size={14} />
                   {formatDuration(workout.duration)}
                 </div>
@@ -57,14 +59,7 @@ export default function LiftHistoryPage() {
               
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {workout.exercises.map((ex, i) => (
-                  <span key={i} style={{ 
-                    background: '#fff', 
-                    padding: '4px 8px', 
-                    borderRadius: '6px', 
-                    fontSize: '12px', 
-                    fontWeight: '600',
-                    border: '1px solid #f2f2f7'
-                  }}>
+                  <span key={i} className="badge">
                     {ex.movementId?.name || 'Exercise'}
                   </span>
                 ))}
@@ -72,7 +67,7 @@ export default function LiftHistoryPage() {
             </div>
           ))
         ) : (
-          <div style={{ textAlign: 'center', marginTop: '40px', color: '#8e8e93' }}>
+          <div className="empty-state">
             <p>No workouts logged yet.</p>
           </div>
         )}

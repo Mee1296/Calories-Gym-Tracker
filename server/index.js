@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const movementRoutes = require('./routes/movementRoutes');
 const workoutRoutes = require('./routes/workoutRoutes');
 const weightRoutes = require('./routes/weightRoutes');
+const mealRoutes = require('./routes/mealRoutes');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/api', authRoutes);
 app.use('/api/movements', movementRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/weights', weightRoutes);
+app.use('/api/meals', mealRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gymtracker';

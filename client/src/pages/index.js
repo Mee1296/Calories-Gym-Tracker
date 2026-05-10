@@ -30,10 +30,12 @@ export default function LoginPage() {
 
   return (
     <div className="container">
-      <h1 style={{ textAlign: 'center', marginBottom: '8px' }}>Gym Tracker</h1>
-      <p style={{ textAlign: 'center', color: '#8e8e93', marginBottom: '32px' }}>still under construction</p>
+      <div className="page-header centered">
+        <h1 className="page-title">Gym Tracker</h1>
+        <p className="page-subtitle">still under construction</p>
+      </div>
       
-      <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <form onSubmit={handleAuth} className="form-row-full">
         <input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
         {!isLogin && (
@@ -42,14 +44,14 @@ export default function LoginPage() {
             <option value="admin">Admin</option>
           </select>
         )}
-        <button className="btn-primary" type="submit">{isLogin ? 'Login' : 'Register'}</button>
+        <button className="btn-primary btn-full" type="submit">{isLogin ? 'Login' : 'Register'}</button>
       </form>
-      <p style={{ textAlign: 'center', marginTop: '20px' }}>
+      <div className="switch-action">
         {isLogin ? "Don't have an account?" : "Already have an account?"}
-        <button className="btn-outline" style={{ border: 'none', marginLeft: '4px' }} onClick={() => setIsLogin(!isLogin)}>
+        <button className="btn-outline" type="button" onClick={() => setIsLogin(!isLogin)}>
           {isLogin ? 'Register' : 'Login'}
         </button>
-      </p>
+      </div>
     </div>
   );
 }

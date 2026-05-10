@@ -130,27 +130,27 @@ export default function TrainingPage() {
   if (summary) {
     return (
       <div className="container">
-        <h1>Workout Summary</h1>
+        <h1 className="page-title">Workout Summary</h1>
         <div className="card" style={{ marginTop: '20px' }}>
           <p><strong>Duration:</strong> {Math.floor(summary.duration / 60)}m {summary.duration % 60}s</p>
           <p><strong>Exercises:</strong> {summary.exercises.length}</p>
         </div>
-        <button className="btn-primary" style={{ width: '100%' }} onClick={() => router.push('/dashboard')}>Done</button>
+        <button className="btn-primary btn-full" onClick={() => router.push('/dashboard')}>Done</button>
       </div>
     );
   }
 
   return (
     <div className="container" style={{ position: 'relative' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="page-header">
         <Timer seconds={seconds} />
-        <button className="btn-success" onClick={finishSession} style={{ padding: '8px 16px' }}>Finish</button>
+        <button className="btn-success" onClick={finishSession}>Finish</button>
       </div>
 
       {isAdmin && (
         <button 
-          className="btn-secondary" 
-          style={{ width: '100%', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+          className="btn-secondary btn-full" 
+          style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           onClick={() => setShowAddModal(true)}
         >
           <Plus size={20} /> Add New Movement
@@ -158,13 +158,13 @@ export default function TrainingPage() {
       )}
 
       {showAddModal && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div className="card" style={{ background: '#fff', width: '100%', maxWidth: '300px', padding: '24px' }}>
+        <div className="modal-overlay">
+          <div className="modal-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
               <h3>New Movement</h3>
               <X style={{ cursor: 'pointer' }} onClick={() => setShowAddModal(false)} />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="modal-body">
               <input placeholder="Name (e.g. Bench Press)" value={newMovement.name} onChange={e => setNewMovement({ ...newMovement, name: e.target.value })} />
               <select value={newMovement.category} onChange={e => setNewMovement({ ...newMovement, category: e.target.value })}>
                 {['chest', 'back', 'arm', 'delts', 'legs', 'abs'].map(c => <option key={c} value={c}>{c.toUpperCase()}</option>)}
@@ -172,14 +172,14 @@ export default function TrainingPage() {
               <select value={newMovement.plane} onChange={e => setNewMovement({ ...newMovement, plane: e.target.value })}>
                 {['frontal plane', 'saggital plane', 'transverse plane', '-'].map(p => <option key={p} value={p}>{p.toUpperCase()}</option>)}
               </select>
-              <button className="btn-primary" onClick={saveNewMovement}>Save Movement</button>
+              <button className="btn-primary btn-full" onClick={saveNewMovement}>Save Movement</button>
             </div>
           </div>
         </div>
       )}
 
       {/* Unified Searchable Dropdown */}
-      <div ref={searchContainerRef} style={{ marginBottom: '24px', position: 'relative' }}>
+      <div ref={searchContainerRef} className="card section-card" style={{ marginBottom: '24px', position: 'relative' }}>
         <div style={{ position: 'relative' }} onClick={() => setShowSearchList(!showSearchList)}>
           <input 
             placeholder="+ Add Exercise" 
@@ -189,15 +189,8 @@ export default function TrainingPage() {
               setShowSearchList(true);
             }}
             onFocus={() => setShowSearchList(true)}
-            style={{ 
-              paddingRight: '40px', 
-              background: '#f2f2f7', 
-              border: '1px solid #d1d1d6', 
-              borderRadius: '12px',
-              cursor: 'text',
-              fontWeight: '600',
-              caretColor: '#007aff'
-            }}
+            className="input-inline"
+            style={{ paddingRight: '40px', fontWeight: '600', caretColor: '#007aff' }}
           />
           <ChevronDown 
             size={20} 
@@ -205,46 +198,26 @@ export default function TrainingPage() {
               position: 'absolute', 
               right: '12px', 
               top: '50%', 
-              transform: 'translateY(-50%)', 
+              transform: `translateY(-50%) ${showSearchList ? 'rotate(180deg)' : ''}`,
               color: '#8e8e93',
               pointerEvents: 'none',
-              transition: 'transform 0.2s ease',
-              transform: `translateY(-50%) ${showSearchList ? 'rotate(180deg)' : ''}`
+              transition: 'transform 0.2s ease'
             }} 
           />
         </div>
         
         {showSearchList && (
-          <div className="card" style={{ 
-            position: 'absolute', 
-            top: '55px', 
-            left: 0, 
-            right: 0, 
-            zIndex: 50, 
-            maxHeight: '300px', 
-            overflowY: 'auto',
-            background: '#fff',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-            padding: '4px',
-            border: '1px solid #d1d1d6',
-            borderRadius: '14px'
-          }}>
+          <div className="dropdown-card">
             {filteredMovements.length > 0 ? (
               filteredMovements.map(m => (
                 <div 
                   key={m._id} 
                   onClick={() => addExercise(m._id)}
-                  style={{ 
-                    padding: '14px 12px', 
-                    borderBottom: '1px solid #f2f2f7', 
-                    cursor: 'pointer',
-                    transition: 'background 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.target.style.background = '#f2f2f7'}
-                  onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                  className="dropdown-item"
+                  style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.06)', padding: '12px' }}
                 >
-                  <div style={{ fontWeight: '600', fontSize: '16px', color: '#1c1c1e' }}>{m.name}</div>
-                  <div style={{ fontSize: '11px', color: '#8e8e93', textTransform: 'uppercase', fontWeight: '700', marginTop: '2px' }}>
+                  <div style={{ fontWeight: '600', fontSize: '16px', color: '#fff' }}>{m.name}</div>
+                  <div style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '700', marginTop: '2px' }}>
                     {m.category} • {m.plane}
                   </div>
                 </div>
