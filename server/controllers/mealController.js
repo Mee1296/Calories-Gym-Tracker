@@ -80,7 +80,7 @@ exports.updateGoals = async (req, res) => {
       fat: user.targetFat
     });
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(500).send({ error: err.message });
   }
 };
 
@@ -88,7 +88,7 @@ exports.aiParseMeal = async (req, res) => {
   try {
     const { dishName } = req.body;
     if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).send('GEMINI_API_KEY not configured');
+      return res.status(500).send({ error: 'GEMINI_API_KEY not configured' });
     }
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -100,7 +100,7 @@ exports.aiParseMeal = async (req, res) => {
     Example: {"calories": 450, "protein": 25, "carbs": 40, "fat": 15}`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-lite',
+      model: 'gemini-2.5-flash',
       contents: prompt,
     });
     const text = result.text;
@@ -167,7 +167,7 @@ exports.aiSuggestGoals = async (req, res) => {
     Example: {"calories": 2500, "protein": 180, "carbs": 250, "fat": 80}`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-lite',
+      model: 'gemini-2.5-flash',
       contents: prompt,
     });
     const text = result.text;
