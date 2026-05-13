@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 import { useRouter } from 'next/router';
 import { ChevronLeft, Plus, Zap, Settings, Info } from 'lucide-react';
@@ -6,11 +6,14 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Label } from 'recharts';
 
 export default function CaloriesPage() {
   const [data, setData] = useState({ meals: [], goals: { calories: 2000, protein: 150, carbs: 200, fat: 70 } });
+  const [savedDishes, setSavedDishes] = useState([]);
   const [activeTab, setActiveTab] = useState('manual');
   const [isEditingGoals, setIsEditingGoals] = useState(false);
   const [showAiCalculator, setShowAiCalculator] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
+  const suggestionRef = useRef(null);
   const router = useRouter();
 
   // Form states
@@ -31,6 +34,15 @@ export default function CaloriesPage() {
 
   useEffect(() => {
     fetchDailyData();
+    fetchSavedDishes();
+
+    const handleClickOutside = (event) => {
+      if (suggestionRef.current && !suggestionRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const fetchDailyData = async () => {
@@ -50,12 +62,20 @@ export default function CaloriesPage() {
     }
   };
 
+  const fetchSavedDishes = async () => {
+    try {
+      const res = await api.get('/meals/dishes');
+      setSavedDishes(res.data);
+    } catch (err) { console.error('fetchSavedDishes error:', err); }
+  };
+
   const handleManualSubmit = async (e) => {
     e.preventDefault();
     try {
       await api.post('/meals/log', manualMeal);
       setManualMeal({ name: '', calories: '', protein: '', carbs: '', fat: '' });
       fetchDailyData();
+      fetchSavedDishes(); // Refresh suggestions
     } catch (err) { alert(err.response?.data || err.message); }
   };
 
@@ -67,12 +87,28 @@ export default function CaloriesPage() {
       await api.post('/meals/ai', { dishName: aiDish });
       setAiDish('');
       fetchDailyData();
+      fetchSavedDishes(); // Refresh suggestions
     } catch (err) { 
       alert(err.response?.data || err.message); 
     } finally {
       setLoading(false);
     }
   };
+
+  const selectDish = (dish) => {
+    setManualMeal({
+      name: dish.name,
+      calories: dish.calories,
+      protein: dish.protein,
+      carbs: dish.carbs,
+      fat: dish.fat
+    });
+    setShowSuggestions(false);
+  };
+
+  const filteredDishes = savedDishes.filter(d => 
+    manualMeal.name && d.name.toLowerCase().includes(manualMeal.name.toLowerCase()) && d.name.toLowerCase() !== manualMeal.name.toLowerCase()
+  ).slice(0, 5);
 
   const handleAiSuggestGoals = async () => {
     if (!metrics.weight || !metrics.height || !metrics.age) {
@@ -140,15 +176,26 @@ export default function CaloriesPage() {
 
       {isEditingGoals && (
         <div className="card card-soft" style={{ gap: '24px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 className="section-title" style={{ fontSize: '16px', marginBottom: 0 }}>Edit Daily Goals</h3>
-            <button 
-              className="btn-secondary" 
-              style={{ padding: '8px 14px', fontSize: '12px' }}
-              onClick={() => setShowAiCalculator(!showAiCalculator)}
-            >
-              {showAiCalculator ? 'Close AI Calculator' : 'AI Calculator'}
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {showAiCalculator ? (
+              <ChevronLeft 
+                onClick={() => setShowAiCalculator(false)} 
+                style={{ cursor: 'pointer', color: 'var(--text)' }} 
+                size={24}
+              />
+            ) : null}
+            <h3 className="section-title" style={{ fontSize: '16px', marginBottom: 0 }}>
+              {showAiCalculator ? 'AI Goal Calculator' : 'Edit Daily Goals'}
+            </h3>
+            {!showAiCalculator && (
+              <button 
+                className="btn-secondary" 
+                style={{ padding: '8px 14px', fontSize: '12px', marginLeft: 'auto' }}
+                onClick={() => setShowAiCalculator(true)}
+              >
+                AI Calculator
+              </button>
+            )}
           </div>
 
           {showAiCalculator ? (
@@ -310,14 +357,35 @@ export default function CaloriesPage() {
 
         {activeTab === 'manual' ? (
           <form onSubmit={handleManualSubmit} className="form-row-full" style={{ gap: '32px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div ref={suggestionRef} style={{ display: 'flex', flexDirection: 'column', gap: '12px', position: 'relative' }}>
               <label style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '0.05em', color: 'var(--primary)', marginLeft: '4px' }}>MEAL NAME</label>
               <input 
                 placeholder="e.g. Chicken Salad" 
                 value={manualMeal.name} 
-                onChange={e => setManualMeal({...manualMeal, name: e.target.value})} 
+                onChange={e => {
+                  setManualMeal({...manualMeal, name: e.target.value});
+                  setShowSuggestions(true);
+                }} 
+                onFocus={() => setShowSuggestions(true)}
                 required 
               />
+              {showSuggestions && filteredDishes.length > 0 && (
+                <div className="dropdown-card" style={{ top: '100%', marginTop: '8px', zIndex: 100 }}>
+                  {filteredDishes.map((dish, i) => (
+                    <div 
+                      key={i} 
+                      className="dropdown-item" 
+                      onClick={() => selectDish(dish)}
+                      style={{ borderBottom: i === filteredDishes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.06)', padding: '14px' }}
+                    >
+                      <div style={{ fontWeight: '600', color: '#fff' }}>{dish.name}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
+                        {dish.calories} kcal • P:{dish.protein}g C:{dish.carbs}g F:{dish.fat}g
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

@@ -1,5 +1,6 @@
 const Meal = require('../models/Meal');
 const User = require('../models/User');
+const Dish = require('../models/Dish');
 const { GoogleGenAI } = require('@google/genai');
 
 exports.getDailyData = async (req, res) => {
@@ -25,9 +26,29 @@ exports.getDailyData = async (req, res) => {
   }
 };
 
+exports.getSavedDishes = async (req, res) => {
+  try {
+    const dishes = await Dish.find({ userId: req.user.id }).sort({ lastUsed: -1 });
+    res.json(dishes);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+};
+
 exports.logMeal = async (req, res) => {
   try {
     const { name, calories, protein, carbs, fat } = req.body;
+    
+    // Save/Update Dish for suggestions
+    await Dish.findOneAndUpdate(
+      { userId: req.user.id, name: name.trim() },
+      { 
+        calories, protein, carbs, fat,
+        lastUsed: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
     const newMeal = new Meal({
       userId: req.user.id,
       name,
@@ -79,7 +100,7 @@ exports.aiParseMeal = async (req, res) => {
     Example: {"calories": 450, "protein": 25, "carbs": 40, "fat": 15}`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.0-flash-lite',
       contents: prompt,
     });
     const text = result.text;
@@ -90,6 +111,16 @@ exports.aiParseMeal = async (req, res) => {
     
     const nutrition = JSON.parse(jsonMatch[0]);
     
+    // Save/Update Dish for suggestions
+    await Dish.findOneAndUpdate(
+      { userId: req.user.id, name: dishName.trim() },
+      { 
+        ...nutrition,
+        lastUsed: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
     // Save it automatically
     const newMeal = new Meal({
       userId: req.user.id,
@@ -136,7 +167,7 @@ exports.aiSuggestGoals = async (req, res) => {
     Example: {"calories": 2500, "protein": 180, "carbs": 250, "fat": 80}`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.0-flash-lite',
       contents: prompt,
     });
     const text = result.text;
