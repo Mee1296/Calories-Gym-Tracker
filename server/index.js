@@ -15,29 +15,30 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
 // Routes
+app.get('/', (req, res) => res.send('Welcome to gym tracker'));
 app.get('/api/ping', (req, res) => res.send('pong'));
-app.use('/api', authRoutes);
-app.use('/api/movements', movementRoutes);
-app.use('/api/workouts', workoutRoutes);
-app.use('/api/weights', weightRoutes);
-app.use('/api/meals', mealRoutes);
+
+// Create specific route handlers that connect to DB
+const dbMiddleware = async (req, res, next) => {
+  await connectDB();
+  next();
+};
+
+app.use('/api', dbMiddleware, authRoutes);
+app.use('/api/movements', dbMiddleware, movementRoutes);
+app.use('/api/workouts', dbMiddleware, workoutRoutes);
+app.use('/api/weights', dbMiddleware, weightRoutes);
+app.use('/api/meals', dbMiddleware, mealRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gymtracker';
 
-// MongoDB connection logic for serverless
-let isConnected = false;
+// MongoDB connection logic
 const connectDB = async () => {
-  if (isConnected) return;
+  if (mongoose.connection.readyState >= 1) return;
   try {
-    const db = await mongoose.connect(MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    isConnected = db.connections[0].readyState;
-    console.log('Connected to MongoDB');
+    await mongoose.connect(MONGO_URI);
   } catch (err) {
     console.error('MongoDB connection error:', err);
   }
@@ -49,11 +50,5 @@ if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   });
 }
-
-// Ensure DB is connected for every request in serverless
-app.use(async (req, res, next) => {
-  await connectDB();
-  next();
-});
 
 module.exports = app;
