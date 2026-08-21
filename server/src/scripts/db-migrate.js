@@ -7,11 +7,28 @@
  */
 const path = require('path');
 const { migrate } = require('drizzle-orm/postgres-js/migrator');
-const { db, closeDB } = require('../db');
+const { db, getClient, closeDB } = require('../db');
 
 const migrationsFolder = path.resolve(__dirname, '../../drizzle');
 
-const applyMigrations = () => migrate(db, { migrationsFolder });
+// Any 64-bit constant; it only has to be the same in every instance.
+const LOCK_KEY = 4021977123456789n;
+
+/**
+ * Serialises migration across instances. Two containers booting together would
+ * otherwise both see an empty migrations table and try to apply the same DDL,
+ * and the loser fails on an already-existing object. Whoever gets the advisory
+ * lock migrates; the others wait and then find nothing to do.
+ */
+const applyMigrations = async () => {
+  const sql = getClient();
+  await sql`select pg_advisory_lock(${LOCK_KEY})`;
+  try {
+    await migrate(db, { migrationsFolder });
+  } finally {
+    await sql`select pg_advisory_unlock(${LOCK_KEY})`;
+  }
+};
 
 module.exports = { applyMigrations };
 

@@ -26,4 +26,11 @@ const env = {
 env.isProduction = env.nodeEnv === 'production';
 env.hasAI = Boolean(env.geminiApiKey);
 
+if (env.isProduction && env.corsOrigins.includes('*')) {
+  // Not fatal — a public read-only deploy may genuinely want this — but with
+  // `credentials: true` it means any site can call the API with the user's
+  // token attached, so it should be a deliberate choice rather than a default.
+  console.warn('[env] CORS_ORIGINS is "*" in production; set it to your client origin.');
+}
+
 module.exports = env;
