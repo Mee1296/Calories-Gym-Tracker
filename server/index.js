@@ -1,54 +1,30 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
+const app = require('./src/app');
+const env = require('./src/config/env');
+const { connectDB, closeDB } = require('./src/db');
+const { applyMigrations } = require('./src/scripts/db-migrate');
 
-dotenv.config();
+if (require.main === module) {
+  connectDB()
+    .then(async () => {
+      // Bring the schema up to date before anything touches a table.
+      await applyMigrations();
 
-const authRoutes = require('./routes/authRoutes');
-const movementRoutes = require('./routes/movementRoutes');
-const workoutRoutes = require('./routes/workoutRoutes');
-const weightRoutes = require('./routes/weightRoutes');
-const mealRoutes = require('./routes/mealRoutes');
+      const server = app.listen(env.port, () =>
+        console.log(`Stride API listening on :${env.port} (${env.nodeEnv})`));
 
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-// Routes
-app.get('/', (req, res) => res.send('Welcome to gym tracker'));
-app.get('/api/ping', (req, res) => res.send('pong'));
-
-// Create specific route handlers that connect to DB
-const dbMiddleware = async (req, res, next) => {
-  await connectDB();
-  next();
-};
-
-app.use('/api', dbMiddleware, authRoutes);
-app.use('/api/movements', dbMiddleware, movementRoutes);
-app.use('/api/workouts', dbMiddleware, workoutRoutes);
-app.use('/api/weights', dbMiddleware, weightRoutes);
-app.use('/api/meals', dbMiddleware, mealRoutes);
-
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/gymtracker';
-
-// MongoDB connection logic
-const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) return;
-  try {
-    await mongoose.connect(MONGO_URI);
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-  }
-};
-
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-  connectDB().then(() => {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  });
+      const shutdown = async (signal) => {
+        console.log(`\n${signal} received, closing.`);
+        server.close();
+        await closeDB().catch(() => {});
+        process.exit(0);
+      };
+      process.on('SIGTERM', () => shutdown('SIGTERM'));
+      process.on('SIGINT', () => shutdown('SIGINT'));
+    })
+    .catch((err) => {
+      console.error('Failed to start: could not reach Postgres.', err.message);
+      process.exit(1);
+    });
 }
 
 module.exports = app;

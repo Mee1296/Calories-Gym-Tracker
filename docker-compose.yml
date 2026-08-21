@@ -1,30 +1,82 @@
+name: stride
+
 services:
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
+  # Optional local database. Not started by default — DATABASE_URL in server/.env
+  # points at Supabase. To use this instead:
+  #   docker compose --profile local-db up
+  #   DATABASE_URL=postgresql://stride:stride-local-dev@localhost:5432/stride
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["local-db"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: stride
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stride-local-dev}
+      POSTGRES_DB: stride
     volumes:
-      - mongodb_data:/data/db
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stride -d stride"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   server:
-    build: ./server
+    build:
+      context: ./server
+    image: stride-server
+    restart: unless-stopped
+    init: true
     ports:
       - "5000:5000"
     env_file:
       - ./server/.env
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/gymtracker
-    depends_on:
-      - mongodb
+      NODE_ENV: production
+      PORT: 5000
+      # DATABASE_URL comes from server/.env so this runs against Supabase.
 
   client:
-    build: ./client
+    build:
+      context: ./client
+      args:
+        # Baked into the browser bundle at build time. Change this (and rebuild)
+        # when the API is not reachable at localhost:5000.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000/api}
+    image: stride-client
+    restart: unless-stopped
+    init: true
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
     depends_on:
-      - server
+      server:
+        condition: service_healthy
+
+  # One-shot tooling. Run explicitly, e.g.
+  #   docker compose run --rm migrate
+  #   docker compose run --rm seed
+  migrate:
+    build:
+      context: ./server
+    image: stride-server
+    profiles: ["tools"]
+    env_file:
+      - ./server/.env
+    # DATABASE_URL and MONGO_URI both come from server/.env.
+    # Delete this service once you have migrated (or if starting fresh).
+    command: ["node", "src/scripts/mongo-to-postgres.js"]
+
+  seed:
+    build:
+      context: ./server
+    image: stride-server
+    profiles: ["tools"]
+    env_file:
+      - ./server/.env
+    command: ["node", "src/scripts/seed.js"]
 
 volumes:
-  mongodb_data:
+  postgres_data:

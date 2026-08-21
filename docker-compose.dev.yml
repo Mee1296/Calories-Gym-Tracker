@@ -1,0 +1,37 @@
+# Hot-reloading overlay. Use with:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# Source is bind-mounted, and each service keeps its own node_modules in an
+# anonymous volume so the container's install is not shadowed by the host's.
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    image: stride-server-dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    command: ["npm", "run", "dev"]
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    image: stride-client-dev
+    environment:
+      NODE_ENV: development
+      # Dev mode reads this at runtime, so no rebuild is needed to change it.
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000/api}
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+      - /app/.next
+    # The dev server does not answer the production healthcheck the same way.
+    depends_on:
+      server:
+        condition: service_started
+    command: ["npm", "run", "dev"]

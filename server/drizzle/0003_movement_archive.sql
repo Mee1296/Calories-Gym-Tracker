@@ -1,0 +1,1 @@
+ALTER TABLE "movements" ADD COLUMN "archived_at" timestamp with time zone;

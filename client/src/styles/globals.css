@@ -1,476 +1,269 @@
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
-:root {
-  color-scheme: dark;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-  --bg: #030405;
-  --surface: #111827;
-  --surface-strong: #1f2937;
-  --surface-muted: #111827;
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #ffffff;
-  --muted: #94a3b8;
-  --primary: #3b82f6;
-  --primary-strong: #2563eb;
-  --secondary: #7c3aed;
-  --success: #10b981;
-  --danger: #ef4444;
-  --shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
-}
-
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: #000;
-  color: var(--text);
+  background: #e9ebe7;
+  color: #1b1f1c;
+  /* The webfont is applied inside the app shell, where next/font's
+     --font-outfit variable is in scope; this is the fallback for stray text. */
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-button, input, select, textarea {
-  font: inherit;
-}
-
-.iphone-frame {
-  width: 390px;
-  max-width: 100%;
-  height: 844px;
-  background: #111;
-  border-radius: 52px;
-  padding: 12px;
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-  border: 4px solid #222;
-}
-
-.iphone-frame::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 124px;
-  height: 34px;
-  background: #222;
-  border-bottom-left-radius: 18px;
-  border-bottom-right-radius: 18px;
-  z-index: 10;
-}
-
-.iphone-screen {
-  width: 100%;
+#__next {
   height: 100%;
-  background: var(--bg);
-  border-radius: 40px;
-  overflow-y: auto;
-  position: relative;
-  -webkit-overflow-scrolling: touch;
 }
 
-.container {
-  padding: 24px 20px;
-  margin-top: 30px;
-  min-height: calc(100% - 30px);
-  display: flex;
-  flex-direction: column;
+html,
+body {
+  height: 100%;
 }
 
-h1, h2, h3, p, label {
-  margin: 0;
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
-h1 {
-  font-size: 32px;
-  line-height: 1.1;
-  font-weight: 800;
+button:active {
+  transform: scale(0.97);
 }
 
-h2 {
-  font-size: 22px;
-  font-weight: 700;
-}
-
-h3 {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-p,
-label,
-small {
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.card {
-  background: var(--surface);
-  padding: 22px;
-  border-radius: 28px;
-  margin-bottom: 18px;
-  border: 1px solid var(--border);
-  transition: transform 0.25s ease;
-}
-
-.card:hover {
-  transform: translateY(-1px);
-}
-
-input, select, textarea {
-  width: 100%;
-  background: #1f2937;
-  border: 1px solid var(--border);
-  padding: 18px 22px;
-  border-radius: 18px;
-  color: #fff;
-  font-size: 16px;
-  transition: all 0.2s ease;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  background-size: 16px;
-  padding-right: 48px;
-}
-
-.form-row {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.form-row-full {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: var(--primary);
-  outline: none;
+button:disabled:active {
+  transform: none;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #64748b;
+  color: #aeb3af;
 }
 
-button {
-  border: none;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 700;
-  border-radius: 16px;
-  padding: 14px 18px;
-  transition: transform 0.18s ease, opacity 0.2s ease;
+:focus-visible {
+  outline: 2px solid #2f7d5b;
+  outline-offset: 2px;
 }
 
-button:hover {
-  transform: translateY(-1px);
-}
-
-button:active {
-  transform: translateY(0);
-  opacity: 0.95;
-}
-
-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
-  color: #fff;
-}
-
-.btn-secondary {
-  background: linear-gradient(135deg, #8b5cf6, #6366f1);
-  color: #fff;
-}
-
-.btn-success {
-  background: linear-gradient(135deg, #22c55e, #14b8a6);
-  color: #fff;
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, #ef4444, #f97316);
-  color: #fff;
-}
-
-.btn-outline {
-  background: transparent;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.2);
-}
-
-.btn-outline:hover {
-  background: rgba(255,255,255,0.05);
-}
-
-.btn-full {
-  width: 100%;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.page-header.centered {
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.page-header.centered .page-title {
-  color: #fff;
-}
-
-.page-header.centered .page-subtitle {
-  color: var(--muted);
-}
-
-.page-title {
-  font-size: 30px;
-  line-height: 1.1;
-  font-weight: 800;
-  color: #fff;
-}
-
-.page-subtitle {
-  color: var(--muted);
-  margin-top: 6px;
-  font-size: 15px;
-}
-
-.dashboard-grid {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.dashboard-card {
-  flex: 1;
-  padding: 24px;
-  border-radius: 28px;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 120px;
-  transition: transform 0.2s ease;
-}
-
-.dashboard-card:hover {
-  transform: scale(1.02);
-}
-
-.dashboard-card h3 {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-.dashboard-card p {
-  font-size: 16px;
-  opacity: 0.9;
-  color: #fff;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  background: var(--surface-strong);
-  color: #fff;
-  border: 1px solid var(--border);
-}
-
-.input-group {
-  display: grid;
-  gap: 10px;
-}
-
-.input-inline {
-  width: 100%;
-}
-
-.exercise-card {
-  padding: 20px;
-}
-
-.exercise-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.exercise-row input {
-  width: 100%;
-}
-
-.exercise-note {
-  font-size: 12px;
-  color: #2563eb;
-  font-weight: 600;
-  margin-top: 6px;
-  padding-left: 32px;
-}
-
-.modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.dropdown-card.no-padding {
-  padding: 0;
-}
-
-.chart-card {
-  padding: 20px;
-  min-height: 250px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.chart-legend {
-  display: flex;
-  gap: 14px;
-  margin-top: -18px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #475569;
-}
-
-.chart-legend span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.chart-legend .dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.stat-card {
-  padding: 20px;
-  text-align: center;
-  background: var(--surface-strong);
-  border-radius: 24px;
-  border: 1px solid var(--border);
-}
-
-.stats-label {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #64748b;
-  margin-bottom: 6px;
-}
-
-.stats-value {
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.stats-meta {
-  font-size: 12px;
-  color: #94a3b8;
-  margin-top: 6px;
-}
-
-.switch-action {
-  text-align: center;
-  color: var(--muted);
-  font-size: 14px;
-  margin-top: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.switch-action button {
-  background: transparent;
-  color: var(--primary);
-  border: none;
-  padding: 4px 12px;
-  font-weight: 700;
-  cursor: pointer;
-  width: auto;
-}
-
-@media (max-width: 420px) {
-  .container {
-    padding: 20px 18px;
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
   }
-
-  .card {
-    border-radius: 22px;
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-input[type=number] {
-  appearance: textfield;
-  -moz-appearance: textfield;
+@keyframes popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
-.timer-text {
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.macro-bar {
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── responsive shell ────────────────────────────────────────────────
+   Phone-first: one centred column with a bottom tab bar. From 900px the
+   same markup becomes a normal desktop app — the tab bar turns into a left
+   sidebar and sheets stop being bottom drawers. Done in CSS rather than a
+   JS breakpoint so the server-rendered markup matches on first paint. */
+
+.app-shell {
+  /* A definite height, not just a minimum: the tab bar is pinned to the frame
+     and the body scrolls inside it, which only works if the frame cannot grow
+     past the viewport. dvh keeps that honest under mobile browser chrome. */
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  justify-content: center;
+}
+
+.app-frame {
   width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  margin-top: 10px;
-  overflow: hidden;
-}
-
-.macro-fill {
+  max-width: 420px;
   height: 100%;
-  border-radius: 3px;
-  transition: width 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+  /* Without this a flex item refuses to shrink below its content. */
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.app-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  padding: 10px 12px 18px;
+  z-index: 30;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #e8eae6;
+}
+
+.app-nav-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px;
+  text-decoration: none;
+  border-radius: 14px;
+}
+
+.app-nav-icon {
+  font-size: 20px;
+  transition: filter 200ms ease, transform 200ms ease;
+}
+
+.app-nav-label {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+@media (min-width: 900px) {
+  .app-shell {
+    justify-content: stretch;
+  }
+
+  /* Content is first in the DOM so it stays first for screen readers and for
+     the phone layout; row-reverse puts the nav on the left visually. */
+  .app-frame {
+    max-width: none;
+    flex-direction: row-reverse;
+  }
+
+  .app-content {
+    padding: 0 32px;
+  }
+
+  /* Screens stay a comfortable reading width instead of stretching. */
+  .app-content > * {
+    max-width: 780px;
+    margin: 0 auto;
+    padding-bottom: 48px;
+  }
+
+  .app-nav {
+    position: static;
+    overflow-y: auto;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 4px;
+    width: 232px;
+    flex-shrink: 0;
+    padding: 28px 16px;
+    border-top: none;
+    border-right: 1px solid #e8eae6;
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  .app-nav-link {
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .app-nav-link[aria-current='page'] {
+    background: #e3f0e9;
+  }
+
+  .app-nav-label {
+    font-size: 15px;
+  }
+}
+
+/* Bottom drawer on a phone, centred dialog on a desktop. */
+.sheet-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.sheet-panel {
+  position: relative;
+  border-radius: 28px 28px 0 0;
+  padding: 12px 20px 28px;
+  max-height: 88%;
+  overflow-y: auto;
+  animation: slideUp 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sheet-grabber {
+  width: 40px;
+  height: 4px;
+  border-radius: 99px;
+  margin: 0 auto 14px;
+}
+
+@media (min-width: 900px) {
+  .sheet-scrim {
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
+
+  .sheet-panel {
+    width: 100%;
+    max-width: 520px;
+    max-height: 84vh;
+    border-radius: 24px;
+    padding: 20px 24px 24px;
+    animation: popIn 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 24px 60px rgba(27, 31, 28, 0.22);
+  }
+
+  .sheet-grabber {
+    display: none;
+  }
 }

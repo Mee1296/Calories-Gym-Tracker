@@ -1,0 +1,2 @@
+DROP INDEX "movements_user_name_key";--> statement-breakpoint
+CREATE UNIQUE INDEX "movements_user_name_key" ON "movements" USING btree ("user_id",lower("name")) WHERE "movements"."archived_at" is null;

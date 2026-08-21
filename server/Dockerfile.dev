@@ -1,0 +1,13 @@
+# syntax=docker/dockerfile:1
+# Development image: full dependency set, source bind-mounted by compose.
+FROM node:20-alpine
+ENV NODE_ENV=development
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+
+EXPOSE 5000
+CMD ["npm", "run", "dev"]

@@ -1,1 +1,16 @@
-node_modules\n.next\n.git
+node_modules
+npm-debug.log*
+.next
+out
+build
+.git
+.gitignore
+.env.local
+.env.*.local
+Dockerfile
+.dockerignore
+README.md
+*.md
+.DS_Store
+coverage
+.vercel
