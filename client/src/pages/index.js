@@ -16,6 +16,8 @@ const MODES = [
 export default function AuthPage() {
   const router = useRouter();
   const [mode, setMode] = useState('login');
+  // Single-user deployments close signup; only offer the tab when it is open.
+  const [canRegister, setCanRegister] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,6 +27,14 @@ export default function AuthPage() {
   useEffect(() => {
     if (getToken()) router.replace('/today');
   }, [router]);
+
+  useEffect(() => {
+    let live = true;
+    auth.config()
+      .then((cfg) => { if (live) setCanRegister(Boolean(cfg?.allowRegistration)); })
+      .catch(() => {}); // an older API without /auth/config just stays sign-in only
+    return () => { live = false; };
+  }, []);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -60,12 +70,14 @@ export default function AuthPage() {
         </div>
 
         <Card style={{ padding: 24 }}>
-          <SegmentedControl
-            options={MODES}
-            value={mode}
-            onChange={(next) => { setMode(next); setError(null); }}
-            style={{ marginBottom: 18 }}
-          />
+          {canRegister && (
+            <SegmentedControl
+              options={MODES}
+              value={mode}
+              onChange={(next) => { setMode(next); setError(null); }}
+              style={{ marginBottom: 18 }}
+            />
+          )}
 
           <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <input
@@ -99,9 +111,11 @@ export default function AuthPage() {
           </form>
         </Card>
 
-        <p style={{ textAlign: 'center', fontSize: 12, color: C.stone, margin: 0 }}>
-          New accounts start with Push, Pull and Leg day routines.
-        </p>
+        {canRegister && (
+          <p style={{ textAlign: 'center', fontSize: 12, color: C.stone, margin: 0 }}>
+            New accounts start with Push, Pull and Leg day routines.
+          </p>
+        )}
       </div>
     </AppShell>
   );

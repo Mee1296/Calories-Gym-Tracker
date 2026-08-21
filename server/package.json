@@ -13,7 +13,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "migrate": "node src/scripts/mongo-to-postgres.js"
+    "migrate": "node src/scripts/mongo-to-postgres.js",
+    "user:add": "node src/scripts/create-user.js"
   },
   "dependencies": {
     "@google/genai": "^2.0.1",

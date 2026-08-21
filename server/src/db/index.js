@@ -27,12 +27,17 @@ let database = null;
 const getClient = () => {
   if (!client) {
     client = postgres(env.databaseUrl, {
-      max: env.dbPoolSize,
+      // On a long-running server one process owns the pool. On serverless each
+      // concurrent invocation is its own process, so a large pool per instance
+      // multiplies out and exhausts the database's connection limit.
+      max: env.isServerless ? 1 : env.dbPoolSize,
       // Reconnecting to Supabase costs a TCP + TLS + auth handshake — around
-      // 1.4s from here. This app is used in short bursts, so an idle timeout
-      // meant almost every visit paid it. Hold connections open instead and
-      // let the heartbeat below keep the pooler from reaping them.
-      idle_timeout: 0,
+      // 1.4s. Used in short bursts, an idle timeout meant almost every visit
+      // paid it, so a long-running server holds connections open and the
+      // heartbeat keeps the pooler from reaping them. Serverless is the
+      // opposite: a frozen instance cannot run a heartbeat, and a connection it
+      // never closes is one the database cannot reclaim.
+      idle_timeout: env.isServerless ? 20 : 0,
       max_lifetime: 60 * 30,
       connect_timeout: 15,
       prepare: !usesTransactionPooler(env.databaseUrl),
@@ -85,7 +90,8 @@ const connectDB = async () => {
 let heartbeat = null;
 
 const startHeartbeat = () => {
-  if (heartbeat) return;
+  // Pointless where the process is frozen between requests.
+  if (heartbeat || env.isServerless) return;
   heartbeat = setInterval(() => {
     getClient()`select 1`.catch(() => {});
   }, 60_000);

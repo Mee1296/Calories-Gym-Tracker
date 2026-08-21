@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: true,
-  // Emits .next/standalone with a minimal node_modules — used by the Docker image.
-  output: 'standalone',
+  // Emits .next/standalone with a minimal node_modules for the Docker image.
+  // Vercel produces its own build output and does not want this.
+  ...(process.env.VERCEL ? {} : { output: 'standalone' }),
   // Nothing gained by advertising the framework and version.
   poweredByHeader: false,
   compress: true,

@@ -21,9 +21,15 @@ const env = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   geminiModel: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
   corsOrigins: (process.env.CORS_ORIGINS || '*').split(',').map((s) => s.trim()),
+  // Single-user deployment by default: the signup endpoint is off unless this
+  // is explicitly turned on. Accounts are made with `npm run user:add`.
+  allowRegistration: process.env.ALLOW_REGISTRATION === 'true',
 };
 
 env.isProduction = env.nodeEnv === 'production';
+// Vercel and friends set this. Connection pooling has to behave differently
+// where each request may land in its own short-lived process.
+env.isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
 env.hasAI = Boolean(env.geminiApiKey);
 
 if (env.isProduction && env.corsOrigins.includes('*')) {

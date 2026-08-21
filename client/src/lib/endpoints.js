@@ -5,6 +5,7 @@ import api from './api';
 export const auth = {
   login: (credentials) => api.post('/auth/login', credentials).then((r) => r.data),
   register: (credentials) => api.post('/auth/register', credentials).then((r) => r.data),
+  config: () => api.get('/auth/config').then((r) => r.data),
   me: () => api.get('/auth/me').then((r) => r.data),
 };
 
