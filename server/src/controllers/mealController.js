@@ -18,6 +18,10 @@ exports.log = asyncHandler(async (req, res) => {
   res.status(201).json(meal);
 });
 
+exports.update = asyncHandler(async (req, res) => {
+  res.json(await mealService.update(req.user.id, req.params.id, req.body));
+});
+
 exports.remove = asyncHandler(async (req, res) => {
   await mealService.remove(req.user.id, req.params.id);
   res.status(204).end();

@@ -117,7 +117,7 @@ export default function ActiveWorkout({ source, onFinish, onCancel, library }) {
 
         {workout.exercises.map((exercise, index) => (
           <ExerciseSetCard
-            key={`${exercise.movementId}-${index}`}
+            key={exercise.uid}
             exercise={exercise}
             previousSet={(rowIndex) => previousSet(
               exercise.movementId,
@@ -134,6 +134,10 @@ export default function ActiveWorkout({ source, onFinish, onCancel, library }) {
             onRemoveSet={(rowIndex) => workout.removeSet(index, rowIndex)}
             onSwap={() => setPicker(index)}
             onRemove={() => workout.removeExercise(index)}
+            onMoveUp={() => workout.moveExercise(index, -1)}
+            onMoveDown={() => workout.moveExercise(index, 1)}
+            canMoveUp={index > 0}
+            canMoveDown={index < workout.exercises.length - 1}
           />
         ))}
 

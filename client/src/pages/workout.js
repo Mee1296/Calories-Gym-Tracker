@@ -16,12 +16,13 @@ import useMovements from '../hooks/useMovements';
 
 export default function WorkoutPage() {
   const { ready } = useSession();
-  const { routines, loading, error, reload: reloadRoutines, createRoutine, removeRoutine } = useRoutines();
+  const { routines, loading, error, reload: reloadRoutines, createRoutine, updateRoutine, removeRoutine } = useRoutines();
   const { history, finishWorkout } = useWorkouts(3);
   const library = useMovements();
 
   const [active, setActive] = useState(null);
-  const [builderOpen, setBuilderOpen] = useState(false);
+  // null when closed; a routine when editing; `true` for a blank new routine.
+  const [builder, setBuilder] = useState(null);
   const [celebration, setCelebration] = useState(null);
   const [movementOpen, setMovementOpen] = useState(false);
 
@@ -46,9 +47,12 @@ export default function WorkoutPage() {
       sheets={(
         <>
           <RoutineBuilder
-            open={builderOpen}
-            onClose={() => setBuilderOpen(false)}
-            onSave={createRoutine}
+            open={builder !== null}
+            onClose={() => setBuilder(null)}
+            routine={builder === true ? null : builder}
+            onSave={(payload) => (builder === true
+              ? createRoutine(payload)
+              : updateRoutine(builder._id, payload))}
             library={library}
           />
           <MovementLibrary
@@ -103,7 +107,7 @@ export default function WorkoutPage() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '6px 4px -6px' }}>
           <div style={{ fontSize: 14, fontWeight: 700 }}>Your routines</div>
-          <Button variant="soft" onClick={() => setBuilderOpen(true)} style={{ width: 'auto' }}>
+          <Button variant="soft" onClick={() => setBuilder(true)} style={{ width: 'auto' }}>
             + New routine
           </Button>
         </div>
@@ -124,6 +128,7 @@ export default function WorkoutPage() {
               key={routine._id}
               routine={routine}
               onStart={() => setActive({ routine })}
+              onEdit={() => setBuilder(routine)}
               onDelete={() => remove(routine)}
             />
           ))

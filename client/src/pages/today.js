@@ -35,6 +35,7 @@ export default function TodayPage() {
             onClose={close}
             meals={today.meals}
             onLog={today.logMeal}
+            onUpdate={today.updateMeal}
             onDelete={today.removeMeal}
           />
           <GoalsSheet

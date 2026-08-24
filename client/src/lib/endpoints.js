@@ -12,6 +12,7 @@ export const auth = {
 export const meals = {
   day: (date) => api.get('/meals', { params: date ? { date } : {} }).then((r) => r.data),
   log: (meal) => api.post('/meals', meal).then((r) => r.data),
+  update: (id, meal) => api.patch(`/meals/${id}`, meal).then((r) => r.data),
   remove: (id) => api.delete(`/meals/${id}`),
   dishes: (params) => api.get('/meals/dishes', { params }).then((r) => r.data),
 };
@@ -42,6 +43,7 @@ export const movements = {
 export const routines = {
   list: () => api.get('/routines').then((r) => r.data),
   create: (routine) => api.post('/routines', routine).then((r) => r.data),
+  update: (id, routine) => api.patch(`/routines/${id}`, routine).then((r) => r.data),
   remove: (id) => api.delete(`/routines/${id}`),
 };
 

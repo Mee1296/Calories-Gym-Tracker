@@ -5,6 +5,7 @@ import SetInput from './SetInput';
 import { plural } from '../../lib/format';
 
 const HEADER_CELL = { fontSize: 11, fontWeight: 700, color: C.stone, textAlign: 'center' };
+const MOVE_BTN = { ...btnGhost, padding: '7px 9px', fontSize: 13, color: C.stone };
 
 /** One movement inside an active workout: its set rows and controls. */
 export default function ExerciseSetCard({
@@ -15,6 +16,10 @@ export default function ExerciseSetCard({
   onRemoveSet,
   onSwap,
   onRemove,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
   previousSet,
 }) {
   const doneCount = exercise.rows.filter((r) => r.done).length;
@@ -39,6 +44,26 @@ export default function ExerciseSetCard({
           </div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+          <button
+            type="button"
+            onClick={onMoveUp}
+            disabled={!canMoveUp}
+            title="Move up"
+            aria-label={`Move ${exercise.name} earlier`}
+            style={{ ...MOVE_BTN, opacity: canMoveUp ? 1 : 0.3, cursor: canMoveUp ? 'pointer' : 'default' }}
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            onClick={onMoveDown}
+            disabled={!canMoveDown}
+            title="Move down"
+            aria-label={`Move ${exercise.name} later`}
+            style={{ ...MOVE_BTN, opacity: canMoveDown ? 1 : 0.3, cursor: canMoveDown ? 'pointer' : 'default' }}
+          >
+            ↓
+          </button>
           <button type="button" onClick={onSwap} title="Swap movement" aria-label={`Swap ${exercise.name}`} style={{ ...btnGhost, padding: '7px 11px', fontSize: 13 }}>↺</button>
           <button type="button" onClick={onRemove} title="Remove movement" aria-label={`Remove ${exercise.name}`} style={{ ...btnGhost, padding: '7px 11px', fontSize: 13, color: C.stone }}>✕</button>
         </div>

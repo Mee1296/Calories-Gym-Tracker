@@ -11,10 +11,16 @@ export default function useRoutines() {
     return created;
   }, [reload]);
 
+  const updateRoutine = useCallback(async (id, routine) => {
+    const saved = await routinesApi.update(id, routine);
+    await reload();
+    return saved;
+  }, [reload]);
+
   const removeRoutine = useCallback(async (id) => {
     await routinesApi.remove(id);
     await reload();
   }, [reload]);
 
-  return { routines: data ?? [], loading, error, reload, createRoutine, removeRoutine };
+  return { routines: data ?? [], loading, error, reload, createRoutine, updateRoutine, removeRoutine };
 }

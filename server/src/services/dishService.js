@@ -17,8 +17,12 @@ const list = async (userId, { limit = 20, query } = {}) => {
   return rows.map(serialize.dish);
 };
 
-/** Upserted on every meal log, so quick-add reflects what this user actually eats. */
-const remember = async (userId, meal, tx = db) => {
+/**
+ * Upserted on every meal log, so quick-add reflects what this user actually eats.
+ * `bump: false` corrects a remembered dish without counting another serving —
+ * what editing an already-logged meal should do.
+ */
+const remember = async (userId, meal, tx = db, { bump = true } = {}) => {
   const name = meal.name?.trim();
   if (!name) return null;
 
@@ -45,7 +49,7 @@ const remember = async (userId, meal, tx = db) => {
         fat: values.fat,
         ingredients: values.ingredients,
         lastUsed: values.lastUsed,
-        useCount: sql`${dishes.useCount} + 1`,
+        ...(bump ? { useCount: sql`${dishes.useCount} + 1` } : {}),
       },
     })
     .returning();

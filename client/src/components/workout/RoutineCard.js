@@ -3,7 +3,15 @@ import { btnGhost } from '../../theme/styles';
 import { Card } from '../ui';
 import { plural } from '../../lib/format';
 
-export default function RoutineCard({ routine, onStart, onDelete }) {
+/** Stops a control inside the card from also starting the routine. */
+const intercept = (fn) => ({
+  onClick: (e) => { e.stopPropagation(); fn(); },
+  onKeyDown: (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); fn(); }
+  },
+});
+
+export default function RoutineCard({ routine, onStart, onEdit, onDelete }) {
   return (
     <Card onClick={onStart} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
       <div style={{ minWidth: 0 }}>
@@ -16,12 +24,19 @@ export default function RoutineCard({ routine, onStart, onDelete }) {
         <span
           role="button"
           tabIndex={0}
+          title="Edit routine"
+          aria-label={`Edit ${routine.name}`}
+          {...intercept(onEdit)}
+          style={{ ...btnGhost, padding: '8px 12px', fontSize: 13, color: C.stone, display: 'inline-block' }}
+        >
+          Edit
+        </span>
+        <span
+          role="button"
+          tabIndex={0}
           title="Delete routine"
           aria-label={`Delete ${routine.name}`}
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onDelete(); }
-          }}
+          {...intercept(onDelete)}
           style={{ ...btnGhost, padding: '8px 12px', fontSize: 13, color: C.stone, display: 'inline-block' }}
         >
           ✕

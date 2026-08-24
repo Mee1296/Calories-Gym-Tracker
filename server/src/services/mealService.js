@@ -91,6 +91,42 @@ const log = async (userId, payload) => {
   });
 };
 
+/**
+ * A full replace, not a partial patch: the client edits a resolved draft and
+ * sends the whole meal back, exactly as it does when logging one.
+ *
+ * The dish library is corrected too — fixing a meal's macros should fix the
+ * quick-add entry it came from — but without bumping `useCount`, since an edit
+ * is not another serving.
+ */
+const update = async (userId, id, payload) => {
+  const [existing] = await db.select().from(meals)
+    .where(and(eq(meals.id, id), eq(meals.userId, userId)))
+    .limit(1);
+  if (!existing) throw ApiError.notFound('Meal not found');
+
+  const name = (payload.name ?? existing.name)?.trim();
+  if (!name) throw ApiError.badRequest('Give the meal a name');
+
+  const macros = resolveMacros(payload);
+  if (macros.calories <= 0) throw ApiError.badRequest('A meal needs at least some calories');
+
+  return db.transaction(async (tx) => {
+    const [row] = await tx.update(meals).set({
+      name,
+      calories: macros.calories,
+      protein: macros.protein,
+      carbs: macros.carbs,
+      fat: macros.fat,
+      ingredients: macros.ingredients,
+      ...(payload.date ? { date: dayKey(payload.date) } : {}),
+    }).where(eq(meals.id, id)).returning();
+
+    await dishService.remember(userId, { name, ...macros }, tx, { bump: false });
+    return serialize.meal(row);
+  });
+};
+
 const remove = async (userId, id) => {
   const [row] = await db.delete(meals)
     .where(and(eq(meals.id, id), eq(meals.userId, userId)))
@@ -118,4 +154,4 @@ const dailyTotals = async (userId, days = 28) => {
   return rows;
 };
 
-module.exports = { listForDay, log, remove, dailyTotals, totalsOf };
+module.exports = { listForDay, log, update, remove, dailyTotals, totalsOf };

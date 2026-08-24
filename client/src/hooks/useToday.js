@@ -22,6 +22,11 @@ export default function useToday(date = dayKey()) {
     await reload();
   }, [date, reload]);
 
+  const updateMeal = useCallback(async (id, meal) => {
+    await mealsApi.update(id, meal);
+    await reload();
+  }, [reload]);
+
   const removeMeal = useCallback(async (id) => {
     await mealsApi.remove(id);
     await reload();
@@ -40,6 +45,7 @@ export default function useToday(date = dayKey()) {
     error,
     reload,
     logMeal,
+    updateMeal,
     removeMeal,
     saveGoals,
   };

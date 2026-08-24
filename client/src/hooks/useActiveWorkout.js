@@ -6,8 +6,16 @@ export const REST_SECONDS = 90;
 
 const emptyRow = () => ({ weight: '', reps: '', done: false });
 
+/**
+ * Identity for React keys. The same movement can appear twice in a session and
+ * exercises can be reordered, so neither the movement id nor the array index is
+ * stable enough on its own.
+ */
+let nextUid = 0;
+
 /** A routine entry or a picked movement becomes an in-session exercise. */
 const toExercise = (movement, setCount = 1) => ({
+  uid: (nextUid += 1),
   movementId: movement.movementId || movement._id,
   name: movement.name,
   defaultWeight: movement.weight ?? movement.defaultWeight ?? 0,
@@ -87,6 +95,17 @@ export default function useActiveWorkout(source) {
     setExercises((list) => list.filter((_, i) => i !== index));
   }, []);
 
+  /** Swaps an exercise with its neighbour. `delta` is -1 for up, +1 for down. */
+  const moveExercise = useCallback((index, delta) => {
+    setExercises((list) => {
+      const target = index + delta;
+      if (target < 0 || target >= list.length) return list;
+      const next = [...list];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  }, []);
+
   const skipRest = useCallback(() => setRest(0), []);
 
   const stats = useMemo(() => {
@@ -127,6 +146,7 @@ export default function useActiveWorkout(source) {
     addExercise,
     swapExercise,
     removeExercise,
+    moveExercise,
     skipRest,
     buildPayload,
   };
