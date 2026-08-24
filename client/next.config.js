@@ -19,13 +19,19 @@ module.exports = {
       try { return new URL(api).origin; } catch { return ''; }
     })();
 
+    // React Refresh compiles modules with eval, so the dev server needs
+    // 'unsafe-eval' to hot-reload at all. It never reaches a real deployment:
+    // `next dev` is the only thing that sets NODE_ENV to development.
+    const dev = process.env.NODE_ENV === 'development';
+
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      `script-src 'self' 'unsafe-inline'${dev ? " 'unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self'",
-      `connect-src 'self'${apiOrigin ? ` ${apiOrigin}` : ''}`,
+      // The dev server pushes rebuilds over a websocket on its own origin.
+      `connect-src 'self'${apiOrigin ? ` ${apiOrigin}` : ''}${dev ? ' ws: http://localhost:*' : ''}`,
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

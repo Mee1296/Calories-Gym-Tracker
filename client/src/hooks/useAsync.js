@@ -11,7 +11,13 @@ export default function useAsync(loader, deps = [], { initial = null, enabled = 
   const [error, setError] = useState(null);
   const mounted = useRef(true);
 
-  useEffect(() => () => { mounted.current = false; }, []);
+  // Set on mount, not just cleared on unmount: StrictMode unmounts and
+  // remounts once in development, and a ref that only ever goes false would
+  // leave every later result discarded — a spinner that never resolves.
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
 
   const run = useCallback(async () => {
     if (!enabled) return undefined;

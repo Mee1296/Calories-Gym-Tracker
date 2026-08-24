@@ -50,7 +50,10 @@ const withExercises = async (routineRows) => {
 const list = async (userId) => {
   const rows = await db.select().from(routines)
     .where(eq(routines.userId, userId))
-    .orderBy(desc(routines.isStarter), asc(routines.createdAt));
+    // The starter routines are inserted in one statement and so share a
+    // createdAt. Without the id tiebreak the sort is arbitrary among them, and
+    // editing one visibly reshuffles the list.
+    .orderBy(desc(routines.isStarter), asc(routines.createdAt), asc(routines.id));
   return withExercises(rows);
 };
 
